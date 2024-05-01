@@ -30,7 +30,7 @@ Where:
 
 ## How it works
 
-The script uses BeautifulSoup to parse the HTML of the website and find the links to the audio files. It then downloads these files using the requests library.
+The script uses BeautifulSoup to parse the HTML of the website and find the links to the audio files. It then downloads these files using the requests library. The script handles HTTP 503 errors by retrying failed requests and adding a delay between requests to avoid overloading the server. It also includes a User-Agent string in the request headers, which some servers require.
 
 ## Disclaimer
 

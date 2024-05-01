@@ -4,6 +4,10 @@ import urllib.request
 from urllib.parse import urlparse, unquote
 import argparse
 import os
+import time
+import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 base_url = "https://domianarchiv.de"
 
@@ -22,6 +26,25 @@ start_page = args.start_page
 end_page = args.end_page
 download_dir = args.download_dir
 
+# Define a retry strategy
+retry_strategy = Retry(
+    total=3,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=["HEAD", "GET", "OPTIONS"],
+    backoff_factor=1
+)
+adapter = HTTPAdapter(max_retries=retry_strategy)
+
+# Create a session
+http = requests.Session()
+http.mount("https://", adapter)
+http.mount("http://", adapter)
+
+# Set a User-Agent string
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+}
+
 for page_number in range(start_page, end_page + 1):
     # Handle the first page as a special case
     if page_number == 0:
@@ -30,7 +53,9 @@ for page_number in range(start_page, end_page + 1):
         # Append the page number to the URL as a query parameter
         search_url = f"{base_url}/sendungen?page={page_number}"
 
+    # Make a request with retry and rate limiting
     r = requests.get(search_url)
+    time.sleep(1)  # Add a delay between requests
 
     soup = BeautifulSoup(r.text, 'html.parser')
 
@@ -40,7 +65,6 @@ for page_number in range(start_page, end_page + 1):
     download_page_links = [link['href'] for link in links if link['href'].endswith('.m4a')]
     # print(f"{download_page_links}")
     for page_link in download_page_links:
-        print(f"{page_link}")
         page_link = page_link.replace('https://domianarchiv.de/', 'https://domian-download.de/HanseMerkur/')
         # Follow the link to the download page
         r = requests.get(f"{page_link}")
