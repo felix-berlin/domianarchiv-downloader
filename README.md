@@ -1,5 +1,7 @@
 # Domian Archiv Downloader
 
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/felix-berlin/domianarchiv-downloader/total?style=flat-square&logo=github)
+
 This script is used to download audio files from the website <https://domianarchiv.de>.
 
 ## Requirements
